@@ -13,22 +13,25 @@ class GrowthForecast::Complex
     if obj.is_a?(String)
       obj = JSON.parse(obj)
     end
-
-    if not obj['complex']
-      raise ArgumentError, "non-complex graph is for GrowthForecast::Graph"
+    obj.keys.each do |k|
+      obj[k.to_sym] = obj.delete(k)
     end
 
-    @id = obj['id'] ? obj['id'].to_i : nil
-    @service_name = obj['service_name']
-    @section_name = obj['section_name']
-    @graph_name = obj['graph_name']
-    @description = obj['description']
-    @sort = (obj['sort'] || 19).to_i
-    @sumup = obj['sumup'] ? true : false
-    @data = (obj['data'] || []).map{|d| Item.new(d)}
-    @number = (obj['number'] || 0).to_i
-    @created_at = obj['created_at'] ? Time.strptime(obj['created_at'], GrowthForecast::TIME_FORMAT) : nil
-    @updated_at = obj['updated_at'] ? Time.strptime(obj['updated_at'], GrowthForecast::TIME_FORMAT) : nil
+    if not obj[:complex]
+      raise ArgumentError, "non-complex graph is for GrowthForecast::Complex"
+    end
+
+    @id = obj[:id] ? obj[:id].to_i : nil
+    @service_name = obj[:service_name]
+    @section_name = obj[:section_name]
+    @graph_name = obj[:graph_name]
+    @description = obj[:description]
+    @sort = (obj[:sort] || 19).to_i
+    @sumup = obj[:sumup] ? true : false
+    @data = (obj[:data] || []).map{|d| Item.new(d)}
+    @number = (obj[:number] || 0).to_i
+    @created_at = obj[:created_at] ? Time.strptime(obj[:created_at], GrowthForecast::TIME_FORMAT) : nil
+    @updated_at = obj[:updated_at] ? Time.strptime(obj[:updated_at], GrowthForecast::TIME_FORMAT) : nil
   end
 
   def complex?
@@ -43,7 +46,8 @@ class GrowthForecast::Complex
       'description' => @description, 'sort' => @sort, 'sumup' => @sumup,
       'data' => @data.map(&:to_hash),
       'number' => @number,
-      'created_at' => @created_at.strftime(GrowthForecast::TIME_FORMAT), 'updated_at' => @updated_at.strftime(GrowthForecast::TIME_FORMAT)
+      'created_at' => (@created_at ? @created_at.strftime(GrowthForecast::TIME_FORMAT) : nil),
+      'updated_at' => (@updated_at ? @updated_at.strftime(GrowthForecast::TIME_FORMAT) : nil),
     }.to_json
   end
 
@@ -54,10 +58,14 @@ class GrowthForecast::Complex
       if obj.is_a?(String)
         obj = JSON.parse(obj)
       end
-      @graph_id = obj['graph_id']
-      @gmode = obj['gmode'] || 'gauge'
-      @stack = (obj['stack'] || obj['stack'].nil?) ? true : false
-      @type = obj['type'] || 'AREA'
+      obj.keys.each do |k|
+        obj[k.to_sym] = obj.delete(k)
+      end
+
+      @graph_id = obj[:graph_id]
+      @gmode = obj[:gmode] || 'gauge'
+      @stack = (obj[:stack] || obj[:stack].nil?) ? true : false
+      @type = obj[:type] || 'AREA'
     end
 
     def to_hash

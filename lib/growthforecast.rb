@@ -17,11 +17,11 @@ class GrowthForecast
   def initialize(host='localhost', port=5125, prefix=nil, timeout=30, debug=false)
     @host = host
     @port = port.to_i
-    @prefix = if prefix && prefix =~ /^\// then prefix
+    @prefix = if prefix && (prefix =~ /^\//) then prefix
               elsif prefix then '/' + prefix
               else '/'
               end
-    @prefix.chop if @prefix =~ /\/$/
+    @prefix.chop! if @prefix =~ /\/$/
     @timeout = timeout.to_i
     @debug = debug ? true : false
   end
@@ -109,7 +109,7 @@ class GrowthForecast
 
   ADDITIONAL_PARAMS = ['description' 'sort' 'gmode' 'ulimit' 'llimit' 'sulimit' 'sllimit' 'type' 'stype' 'adjust' 'adjustval' 'unit']
   def add(spec)
-    unless spec.respond_to?(:complex)
+    unless spec.respond_to?(:complex?)
       raise ArgumentError, "parameter of add() must be instance of GrowthForecast::Graph or GrowthForecast::Complex (or use add_graph/add_complex)"
     end
     if spec.complex?
@@ -145,9 +145,10 @@ class GrowthForecast
       raise ArgumentError, "gmode must be one of gauge/subtract"
     end
     spec = GrowthForecast::Complex.new({
-        'service_name' => service, 'section_name' => section, 'graph_name' => graph_name,
-        'description' => description, 'sumup' => sumup, 'sort' => sort,
-        'data' => data_graph_ids.map{|id| {'graph_id' => id, 'type' => type, 'gmode' => gmode, 'stack' => stack} }
+        complex: true,
+        service_name: service, section_name: section, graph_name: graph_name,
+        description: description, sumup: sumup, sort: sort,
+        data: data_graph_ids.map{|id| {'graph_id' => id, 'type' => type, 'gmode' => gmode, 'stack' => stack} }
       })
     add_complex_spec(spec)
   end
@@ -210,13 +211,13 @@ class GrowthForecast
     end
 
     # hash obj
-    if obj.has_key?('error') && obj['error'] != '0'
+    if obj.has_key?('error') && obj['error'] != 0
       warn "request ended with error:"
-      (obj.messages || {}).each do |key,msg|
+      (obj['messages'] || {}).each do |key,msg|
         warn "  #{key}: #{msg}"
       end
       warn "  request (#{method}) http://#{host}:#{port}#{request_path}"
-      warn "  with content #{content}"
+      warn "  with content #{res.body}"
       nil
     elsif obj.has_key?('error') && obj.has_key?('data') # valid response, without any errors
       obj['data']
