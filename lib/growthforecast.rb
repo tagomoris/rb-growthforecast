@@ -6,6 +6,7 @@ end
 
 require "growthforecast/graph"
 require "growthforecast/complex"
+require "growthforecast/path"
 
 require 'net/http'
 require 'uri'
@@ -66,7 +67,11 @@ class GrowthForecast
   end
 
   def complexes
-    request('GET', "/json/list/complex", {}, '', true)
+    list = request('GET', "/json/list/complex", {}, '', true)
+    list.each do |path|
+      path.complex = true
+    end
+    list
   end
 
   def all
@@ -167,6 +172,8 @@ class GrowthForecast
       obj
     when obj.is_a?(Array)
       obj.map{|e| concrete(e)}
+    when GrowthForecast::Path.path?(obj)
+      GrowthForecast::Path.new(obj)
     when obj['complex']
       Complex.new(obj)
     else
