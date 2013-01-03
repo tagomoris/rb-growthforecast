@@ -30,7 +30,7 @@ class GrowthForecast::Graph
     @description = obj[:description]
     @mode = obj[:mode] || 'gauge'
     @sort = (obj[:sort] || 19).to_i
-    @color = obj[:color] #TODO 'color' parameter should be specified for graph creation ... (or should handle nil properly)
+    @color = obj[:color]
     @gmode = obj[:gmode] || 'gauge'
     @type = obj[:type] || 'AREA'
     @ulimit = obj[:ulimit] || 1000000000
