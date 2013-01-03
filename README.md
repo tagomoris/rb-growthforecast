@@ -7,6 +7,8 @@ Client library to operate GrowthForecast.
 
 Update graph value, or create/edit/delete basic graphs and complex graphs.
 
+**USE GrowthForecast v0.33 or later**
+
 ## Installation
 
 Add this line to your application's Gemfile:
