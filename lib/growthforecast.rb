@@ -172,8 +172,8 @@ class GrowthForecast
       obj
     when obj.is_a?(Array)
       obj.map{|e| concrete(e)}
-    when GrowthForecast::Path.path?(obj)
-      GrowthForecast::Path.new(obj)
+    when Path.path?(obj)
+      Path.new(obj)
     when obj['complex']
       Complex.new(obj)
     else
