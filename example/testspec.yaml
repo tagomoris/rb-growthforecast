@@ -1,0 +1,72 @@
+config:
+  host: localhost
+  port: 5125
+specs:
+  - name: 'spectest'
+    keywords:
+      - 'arg1'
+      - 'arg2'
+    check:
+      - name: 'test_first_graph'
+        path: 'example/spectest/${arg1}'
+        description: 'test1 for ${arg1} and ${arg2}'
+        color: '#ff1111'
+      - name: 'test_second_graph'
+        path: 'example/spectest/${arg1}_second'
+        description: 'test2 for ${arg1} and ${arg2}'
+        color: '#1111ff'
+      - name: 'test1_complex'
+        path: 'example/spectest/comp1_${arg1}'
+        complex: true
+        description: 'complex test for ${arg1} and ${arg2}'
+        stack: true
+        mode: 'gauge'
+        type: 'LINE1'
+        data:
+          - path: 'example/spectest/${arg1}'
+          - path: 'example/spectest/${arg1}_second'
+            type: 'LINE2'
+      - name: 'test2_complex'
+        path: 'example/spectest/comp2_${arg1}'
+        complex: true
+        description: 'complex test 2 for ${arg1} and ${arg2}'
+        stack: false
+        mode: 'gauge'
+        type: 'AREA'
+        data:
+          - path: 'example/spectest/${arg1}'
+          - path: 'example/spectest/${arg1}_second'
+  - name: 'spectest2'
+    keywords:
+      - 'arg1'
+      - 'arg2'
+    edit:
+      - name: 'test_first_graph'
+        path: 'example/spectest/${arg1}'
+        description: 'test1 for ${arg1} and ${arg2}'
+        color: '#ff1111'
+      - name: 'test_second_graph'
+        path: 'example/spectest/${arg1}_second'
+        description: 'test2 for ${arg1} and ${arg2}'
+        color: '#1111ff'
+      - name: 'test1_complex'
+        path: 'example/spectest/comp1_${arg1}'
+        complex: true
+        description: 'complex test for ${arg1} and ${arg2}'
+        stack: true
+        mode: 'gauge'
+        type: 'LINE1'
+        data:
+          - path: 'example/spectest/${arg1}'
+          - path: 'example/spectest/${arg1}_second'
+            type: 'LINE2'
+      - name: 'test2_complex'
+        path: 'example/spectest/comp2_${arg1}'
+        complex: true
+        description: 'complex test 2 for ${arg1} and ${arg2}'
+        stack: false
+        mode: 'gauge'
+        type: 'AREA'
+        data:
+          - path: 'example/spectest/${arg1}'
+          - path: 'example/spectest/${arg1}_second'

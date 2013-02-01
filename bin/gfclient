@@ -1,0 +1,76 @@
+#!/usr/bin/env ruby
+
+# gfclient spec.yaml TARGET ARG1 ARG2
+
+$0 = 'gfclient'
+
+$LOAD_PATH.push('lib')
+
+options = {}
+
+require 'optparse'
+opt = OptionParser.new
+opt.on('-f', '--force'){|v| options[:force] = v }
+opt.on('-H HOST', '--host=HOST'){|v| options[:host] = v }
+opt.on('-P PORT', '--port=PORT'){|v| options[:port] = v }
+opt.on('-u USER', '--user=USER'){|v| options[:username] = v }
+opt.on('-p PASS', '--pass=PASS'){|v| options[:password] = v }
+opt.on('--prefix=PREFIX'){|v| options[:prefix] = v }
+
+opt.on('-l PATH', '--list=PATH'){|v| options[:list] = v }
+opt.on('-a', '--get-all'){|v| options[:getall] = v }
+opt.on('-g', '--debug'){|v| options[:debug] = v }
+opt.on('-h', '--help'){|v| options[:help] = v }
+begin
+  opt.parse!(ARGV)
+rescue OptionParser::ParseError
+  options[:error] = true
+end
+
+specfile_path = ARGV[0]
+target_name = ARGV[1]
+keywords = ARGV[2,ARGV.size]
+
+unless specfile_path && target_name && keywords && !options[:error] && !options[:help]
+  puts <<"EOH"
+usage: gfclient SPEC_PATH TARGET_NAME [KEYWORD1 KEYWORD2 ...]
+  -f, --force     create/edit graphs with spec (default: check only)
+
+  -H, --host=HOST  set growthforecast hostname (overwrite configuration in spec)
+  -P, --port=PORT  set growthforecast port number
+
+  -u, --user=USER  set username for growthforecast basic authentication
+  -p, --pass=PASS  set password
+
+      --prefix=PREFIX  set growthforecast uri prefix
+
+  -l, --list=PATH  set keywords list file path (keywords set per line)
+                     do check/edit many times with this option
+                     (ignore default keywords)
+  -a, --get-all    get and cache all graph data at first (default: get incrementally)
+  -g, --debug      enable debug mode
+
+  -h, --help      show this message
+EOH
+  exit(0) if options[:help]
+  exit(1)
+end
+
+begin
+  require 'growthforecast/client'
+rescue LoadError
+  require 'rubygems'
+  require 'growthforecast/client'
+end
+
+retval = if options[:list]
+           unless File.file?(options[:list])
+             warn "keywords list file not found: #{options[:list]}"
+             exit(1)
+           end
+           keywords_list = File.open(options[:list]){|file| file.readlines }.map{|line| line.split(/\s+/)}
+           GrowthForecast::Client.execute_bulk(options[:force], specfile_path, target_name, keywords_list, options)
+         else
+           GrowthForecast::Client.execute(options[:force], specfile_path, target_name, keywords, options)
+         end
+exit retval
