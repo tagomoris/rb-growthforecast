@@ -181,11 +181,22 @@ complex_spec.description = '....'
 gf.add(complex_spec) # add() ignores 'id' attribute
 ```
 
+### Basic Authentication
+
+Set `username` and `password`:
+
+```ruby
+gf = GrowthForecast.new(hostname, portnum)
+gf.username = 'whoami'
+gf.password = 'secret'
+
+# ...
+```
+
 ## TODO
 
 * validations of specs
 * diff of 2 graph objects
-* bin/gfclient
 * tests
 
 ## Copyright

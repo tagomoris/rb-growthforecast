@@ -14,6 +14,7 @@ require 'json'
 
 class GrowthForecast
   attr_accessor :host, :port, :prefix, :timeout, :debug
+  attr_accessor :username, :password
 
   def initialize(host='localhost', port=5125, prefix=nil, timeout=30, debug=false)
     @host = host
@@ -25,6 +26,9 @@ class GrowthForecast
     @prefix.chop! if @prefix =~ /\/$/
     @timeout = timeout.to_i
     @debug = debug ? true : false
+
+    @username = nil
+    @password = nil
   end
 
   def debug(mode=nil)
@@ -68,6 +72,7 @@ class GrowthForecast
 
   def complexes
     list = request('GET', "/json/list/complex", {}, '', true)
+    return nil if list.nil?
     list.each do |path|
       path.complex = true
     end
@@ -185,11 +190,25 @@ class GrowthForecast
     concrete(http_request(method, path, header, content, getlist))
   end
 
-  def http_request(method, path, header={}, content='', getlist=false)
+  def http_request(method, path, header={}, content=nil, getlist=false)
     conn = Net::HTTP.new(@host, @port)
     conn.open_timeout = conn.read_timeout = @timeout
     request_path = @prefix + path
-    res = conn.send_request(method, request_path, content, header)
+    req = case method
+          when 'GET'
+            Net::HTTP::Get.new(request_path, header)
+          when 'POST'
+            Net::HTTP::Post.new(request_path, header)
+          else
+            raise ArgumentError, "Invalid HTTP method for GrowthForecast: '#{method}'"
+          end
+    if content
+      req.body = content
+    end
+    if @username || @password
+      req.basic_auth(@username, @password)
+    end
+    res = conn.request(req)
 
     unless res.is_a?(Net::HTTPSuccess)
       return [] if getlist and res.code == '404'
