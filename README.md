@@ -1,11 +1,14 @@
 # GrowthForecast
 
-Client library to operate GrowthForecast.
+Client library and command to operate GrowthForecast.
 
 * http://kazeburo.github.com/GrowthForecast/ (Japanese)
 * https://github.com/kazeburo/growthforecast
 
-Update graph value, or create/edit/delete basic graphs and complex graphs.
+Features:
+
+* Update graph value, or create/edit/delete basic graphs and complex graphs from your own code
+* Check, or edit/create basic/complex graphs with YAML specs, keywords and `gfclient` command
 
 **USE GrowthForecast v0.33 or later**
 
@@ -24,6 +27,8 @@ Or install it yourself as:
     $ gem install growthforecast
 
 ## Usage
+
+### Client Library
 
 Update graph's value:
 
@@ -191,6 +196,138 @@ gf.username = 'whoami'
 gf.password = 'secret'
 
 # ...
+```
+
+### gfclient
+
+```
+usage: gfclient SPEC_PATH TARGET_NAME [KEYWORD1 KEYWORD2 ...]
+  -f, --force     create/edit graphs with spec (default: check only)
+
+  -H, --host=HOST  set growthforecast hostname (overwrite configuration in spec)
+  -P, --port=PORT  set growthforecast port number
+
+  -u, --user=USER  set username for growthforecast basic authentication
+  -p, --pass=PASS  set password
+
+      --prefix=PREFIX  set growthforecast uri prefix
+
+  -l, --list=PATH  set keywords list file path (keywords set per line)
+                     do check/edit many times with this option
+                     (ignore default keywords)
+  -a, --get-all    get and cache all graph data at first (default: get incrementally)
+  -g, --debug      enable debug mode
+
+  -h, --help      show this message
+```
+
+`gfclient` checks all patterns of `TARGET_NAME` in spec yaml file's `specs -> check` section and `specs -> edit` section. Spec file examples are `example/testspec.yaml` and `example/spec.yaml`.
+
+Minimal example is:
+
+```yaml
+config:
+  host: your.gf.host.local
+  port: 5125
+specs:
+  - name: 'example1'
+    keywords:
+      - 'target'
+      - 'groupname'
+    check:
+      - name: 'metrics1'
+        path: 'pageviews/${target}/total'
+        color: '#1111ff'
+      - name: 'metrics2'
+        path: 'pageviews/${target}/bot'
+        color: '#ff1111'
+    edit:
+      - name: 'all metrics'
+        path: '${groupname}/pageviews/all'
+        complex: true
+        description: 'Pageviews graph (team: ${groupname}, service: ${target})'
+        stack: false
+        type: 'LINE2'
+        data:
+          - path: 'pageviews/${target}/total'
+          - path: 'pageviews/${target}/bot'
+            type: 'LINE1'
+```
+
+With configurations above and command line below:
+
+```sh
+ $ gfclient spec.yaml example1 myservice super_team
+```
+
+`gfclient` works with GrowthForecast at http://your.gf.host.local:5125/ like this:
+
+1. check `pageviews/myservice/total` and `pageviews/myservice/bot` exists or not
+2. check these are configured with specified configuration parameters or not
+3. **check** `super_team/pageviews/all` complex graph exists or not, and is configured correctly or not
+4. report result
+
+`gfclient` do check only without options. With **-f or --force** option, graphs specified in `edit` section are created/editted.
+
+1. check `pageviews/myservice/total` and `pageviews/myservice/bot` exists or not, and are configured correctly or not
+2. **abort** when any mismatches found for `check` section specs
+3. check graph specs in `edit` section
+4. **create** graph if specified path is not found
+5. **edit** graph if specified graph's configuration doesn't matches with spec
+
+`name` and `path` attributes must be specified in each check/edit items, and `complex: true` must be specified for complex graph. Others are optional (missing configuration attributes are ignored for check, and specified as default value for create).
+
+(bold item is required)
+
+* basic graph
+  * **name** (label of this spec item)
+  * **path** (string like `service/section/graph`)
+  * description (text)
+  * mode (string: 'gauge', 'subtract' or 'both')
+  * sort (number: 19-0)
+  * color (string like '#0088ff')
+  * type (string: 'AREA', 'LINE1' or 'LINE2') (LINE2 meas bold)
+  * ulimit, llimit (number: effective range upper/lower limit)
+  * stype (string: 'AREA', 'LINE1' or 'LINE2') (mode of subtract graph)
+  * sulimit, llimit (number: effective range of subtract graph)
+* complex graph
+  * **name** (label of this spec item)
+  * **path** (string like `service/section/graph`)
+  * **complex** (true or false: true must be specified for complex graph)
+  * description (text)
+  * sort (number: 19-0)
+  * sumup (true or false: display sum up value or not)
+  * mode/type/stack (global options for items of `data`, and may be overwritten by mode/type/stack of each items of `data`)
+  * **data** (list of basic graph in this complex graph)
+    * **path** (string: path of graph like `service/section/graph`)
+    * mode (string: 'gauge' or 'subtract')
+    * type (string: 'AREA', 'LINE1' or 'LINE2')
+    * stack (true or false)
+
+Spec file configurations (all of these are optional, and may be overwritten by command line options):
+
+```yaml
+config:
+  host: 'hostname.of.growthforecast' # default: localhost
+  port: 80         # default: 5125
+  prefix: '/gf'    # default: '/' (for cases if you mount GrowthForecast on subpath of web server)
+  username: 'name' # username of GrowthForecast's HTTP Basic authentication (default: none)
+  password: 'pass' # password (default: none)
+  debug: false     # show errors in growthforecast http response or not (default: false)
+  getall: false    # get and cache all graph informations before all checks
+                   # (default false, but you should specify true if your gf has many graphs)
+```
+
+You can check/edit many graphs with keywords list file like `gfclient -l listfile spec.yaml targetname`:
+
+```
+# keyword1 keyword2
+xx1        yy1
+xx2        yy2
+
+# blank and comments are ok (but invalid for line-end comment)
+aa1   bb1
+aa2   bb2
 ```
 
 ## TODO
