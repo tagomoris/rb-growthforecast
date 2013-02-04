@@ -49,7 +49,7 @@ specs:
         path: '${servicename}/accesslog/status'
         complex: true
         description: 'レスポンスのステータスコード別の割合'
-        order: 19
+        sort: 19
         gmode: 'gauge'
         stack: true
         type: 'AREA'
@@ -110,7 +110,7 @@ specs:
         path: '${servicename}/accesslog/response_time_percentage'
         complex: true
         description: 'レスポンス所要時間(duration)毎の割合'
-        order: 18
+        sort: 18
         type: 'AREA'
         stack: true
         data:
@@ -124,7 +124,7 @@ specs:
         path: '${servicename}/accesslog/response_time'
         complex: true
         description: 'レスポンス所要時間(duration:マイクロ秒)統計'
-        order: 17
+        sort: 17
         type: 'LINE2'
         stack: false
         data:
@@ -139,7 +139,7 @@ specs:
         path: '${servicename}/accesslog/response_time2'
         complex: true
         description: 'レスポンス所要時間(duration:マイクロ秒) avg/99%tile/max'
-        order: 16
+        sort: 16
         type: 'LINE2'
         stack: false
         data:
