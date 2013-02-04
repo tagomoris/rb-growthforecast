@@ -68,7 +68,7 @@ retval = if options[:list]
              warn "keywords list file not found: #{options[:list]}"
              exit(1)
            end
-           keywords_list = File.open(options[:list]){|file| file.readlines }.map{|line| line.split(/\s+/)}
+           keywords_list = File.open(options[:list]){|file| file.readlines }.select{|s| s !~ /^(#.*|\s+)$/}.map{|line| line.split(/\s+/)}
            GrowthForecast::Client.execute_bulk(options[:force], specfile_path, target_name, keywords_list, options)
          else
            GrowthForecast::Client.execute(options[:force], specfile_path, target_name, keywords, options)
