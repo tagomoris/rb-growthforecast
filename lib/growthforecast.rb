@@ -16,7 +16,7 @@ class GrowthForecast
   attr_accessor :host, :port, :prefix, :timeout, :debug
   attr_accessor :username, :password
 
-  def initialize(host='localhost', port=5125, prefix=nil, timeout=30, debug=false)
+  def initialize(host='localhost', port=5125, prefix=nil, timeout=30, debug=false, username=nil, password=nil)
     @host = host
     @port = port.to_i
     @prefix = if prefix && (prefix =~ /^\//) then prefix
@@ -27,13 +27,13 @@ class GrowthForecast
     @timeout = timeout.to_i
     @debug = debug ? true : false
 
-    @username = nil
-    @password = nil
+    @username = username
+    @password = password
   end
 
   def debug(mode=nil)
     if mode.nil?
-      return GrowthForecast.new(@host,@port,@prefix,@timeout,true)
+      return GrowthForecast.new(@host,@port,@prefix,@timeout,true,@username,@password)
     end
     @mode = mode ? true : false
     self
