@@ -8,7 +8,7 @@ class GrowthForecast::Complex
   attr_accessor :number, :data, :created_at, :updated_at
 
   # TODO strict validations
-  
+
   def initialize(obj)
     if obj.is_a?(String)
       obj = JSON.parse(obj)
@@ -28,7 +28,7 @@ class GrowthForecast::Complex
     @description = obj[:description]
     @sort = (obj[:sort] || 19).to_i
     @sumup = obj[:sumup] ? true : false
-    @data = (obj[:data] || []).map{|d| Item.new(d)}
+    @data = (obj[:data] || []).map{|d| d.is_a?(Item) ? d : Item.new(d)}
     @number = (obj[:number] || 0).to_i
     @created_at = obj[:created_at] ? Time.strptime(obj[:created_at], GrowthForecast::TIME_FORMAT) : nil
     @updated_at = obj[:updated_at] ? Time.strptime(obj[:updated_at], GrowthForecast::TIME_FORMAT) : nil
