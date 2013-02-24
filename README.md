@@ -144,7 +144,7 @@ gf.add_graph('example', 'test', 'graph1')
 
 # add(spec)
 ## spec: instance of GrowthForecast::Graph
-spec = GrowthForecast::Graph({service_name: 'example', section_name: 'test', graph_name: 'graph1', color: '#0000ff'})
+spec = GrowthForecast::Graph.new({service_name: 'example', section_name: 'test', graph_name: 'graph1', color: '#0000ff'})
 gf.add(spec)
 ```
 
@@ -162,7 +162,8 @@ gf.add_complex('example', 'test', 'summary1', 'testing...', true, 0, 'AREA', 'ga
 
 # add(spec)
 ## spec: instance of GrowthForecast::Complex
-spec = GrowthForecast::Complex({
+spec = GrowthForecast::Complex.new({
+  complex: true,
   service_name: 'example', section_name: 'test', graph_name: 'summary1',
   description: 'testing...', sumup: true,
   data: graph_id_list.map{|id| GrowthForecast::Complex::Item.new({graph_id: id, type: 'AREA', gmode: 'gauge', stack: true}) }
