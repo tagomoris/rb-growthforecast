@@ -41,7 +41,7 @@ module GrowthForecast::Client
   def self.execute_once(gf, cache, force, spec, keywords)
     # generate dictionary
     if spec['keywords'].size != keywords.size
-      warn "Keyword mismatch, in spec: #{spec.keywords.join('/')}"
+      warn "Keyword mismatch, in spec: #{spec['keywords'].join('/')}"
       exit(2)
     end
     dic = Hash[[spec['keywords'], keywords].transpose]
