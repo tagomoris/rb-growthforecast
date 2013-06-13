@@ -84,8 +84,11 @@ class GrowthForecast
   end
 
   def tree
+    list = self.all()
+    return {} if list.nil?
+
     root = {}
-    self.all().each do |i|
+    list.each do |i|
       root[i.service_name] ||= {}
       root[i.service_name][i.section_name] ||= {}
       root[i.service_name][i.section_name][i.graph_name] = i
