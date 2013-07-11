@@ -209,6 +209,7 @@ class GrowthForecast
           else
             raise ArgumentError, "Invalid HTTP method for GrowthForecast: '#{method}'"
           end
+    req['Host'] = @host
     if content
       req.body = content
     end
