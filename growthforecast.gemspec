@@ -14,4 +14,6 @@ Gem::Specification.new do |gem|
   gem.name          = "growthforecast"
   gem.require_paths = ["lib"]
   gem.version       = GrowthForecast::VERSION
+
+  gem.add_runtime_dependency "resolve-hostname"
 end

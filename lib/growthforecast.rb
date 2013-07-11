@@ -12,6 +12,8 @@ require 'net/http'
 require 'uri'
 require 'json'
 
+require 'resolve/hostname'
+
 class GrowthForecast
   attr_accessor :host, :port, :prefix, :timeout, :debug
   attr_accessor :username, :password
@@ -29,6 +31,8 @@ class GrowthForecast
 
     @username = username
     @password = password
+
+    @resolver = Resolve::Hostname.new(:system_resolver => true)
   end
 
   def debug(mode=nil)
@@ -194,7 +198,7 @@ class GrowthForecast
   end
 
   def http_request(method, path, header={}, content=nil, getlist=false)
-    conn = Net::HTTP.new(@host, @port)
+    conn = Net::HTTP.new(@resolver.getaddress(@host), @port)
     conn.open_timeout = conn.read_timeout = @timeout
     request_path = @prefix + path
     req = case method
@@ -205,6 +209,7 @@ class GrowthForecast
           else
             raise ArgumentError, "Invalid HTTP method for GrowthForecast: '#{method}'"
           end
+    req['Host'] = @host
     if content
       req.body = content
     end
