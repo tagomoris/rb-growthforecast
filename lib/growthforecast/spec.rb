@@ -126,39 +126,42 @@ class GrowthForecast::Spec
 
       #path
       unless specitem['path']
-        errors.push("data[#{index}]: path missing")
+        errors.push("data: path missing")
         next
       end
       replaced_path = replace_keywords(specitem['path'])
       path_element = replaced_path.split('/')
       unless path_element.size == 3
-        errors.push("data[#{index}]: path is not like SERVICE/SECTION/GRAPH")
+        errors.push("data: path is not like SERVICE/SECTION/GRAPH")
+        next
       end
       specitem_graph = cache.get(*path_element)
       unless specitem_graph
-        errors.push("data[#{index}]: specified graph '#{replaced_path}' not found")
-      end
-
-      #data(sub graph) size
-      unless target_data[index]
-        errors.push("data[#{index}]: graph member missing")
+        errors.push("data: specified graph '#{replaced_path}' not found")
         next
       end
 
+      current_target = target_data.select { |data| data.graph_id.to_i == specitem_graph.id.to_i }
       #data graph_id
-      if specitem_graph.id.to_i != target_data[index].graph_id.to_i
-        errors.push("data[#{index}]: mismatch, spec '#{replaced_path}'(graph id #{specitem_graph.id}) but id '#{target_data[index].graph_id}'")
+      if current_target.size.zero?
+        errors.push("data mismatch, spec '#{replaced_path}'(graph id #{specitem_graph.id}) does not include in complex graph.")
+        next
       end
+      if current_target.size > 1
+        errors.push("data mismatch, spec '#{replaced_path}'(graph id #{specitem_graph.id}) found more than one.")
+        next
+      end
+      current_target = current_target.first
       #gmode, type
-      if specitem.has_key?('gmode') && specitem['gmode'] != target_data[index].gmode
-        errors.push("data[#{index}]: gmode mismatch, spec '#{specitem['gmode']}' but '#{target_data[index].gmode}'")
+      if specitem.has_key?('gmode') && specitem['gmode'] != current_target.gmode
+        errors.push("data: gmode mismatch, spec '#{specitem['gmode']}' but '#{current_target.gmode}'")
       end
-      if specitem.has_key?('type') && specitem['type'] != target_data[index].type
-        errors.push("data[#{index}]: type mismatch, spec '#{specitem['type']}' but '#{target_data[index].type}'")
+      if specitem.has_key?('type') && specitem['type'] != current_target.type
+        errors.push("data: type mismatch, spec '#{specitem['type']}' but '#{current_target.type}'")
       end
       #stack: stack of first data item is nonsense
-      if index > 0 && specitem.has_key?('stack') && specitem['stack'] != target_data[index].stack
-        errors.push("data[#{index}]: stack mismatch, spec '#{specitem['stack']}' but '#{target_data[index].stack}'")
+      if index > 0 && specitem.has_key?('stack') && specitem['stack'] != current_target.stack
+        errors.push("data: stack mismatch, spec '#{specitem['stack']}' but '#{current_target.stack}'")
       end
     end
 
